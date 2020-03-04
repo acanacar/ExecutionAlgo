@@ -2,11 +2,15 @@ from collections import namedtuple
 import pandas as pd
 
 
+class TWAP_CHILD(object):
+    def __init__(self, order_time, order_quantity, sliced_no, parent_code):
+        self.order_time = order_time
+        self.order_quantity = order_quantity
+        self.sliced_no = sliced_no
+        self.parent_code = parent_code
 
 
 class TWAP(object):
-    Child = namedtuple('Child',
-                       ['order_time', 'order_quantity', 'sliced_no', 'parent_code'])
 
     def __init__(self, start_time, end_time,
                  symbol,
@@ -50,21 +54,23 @@ class TWAP(object):
                                            periods=self.interval_count + 1,
                                            closed='right')
         return order_submit_times
+
     def get_order_quantities(self):
-        leap = self.parent_order_quantity%self.interval_count
+        leap = self.parent_order_quantity % self.interval_count
         q1 = (self.parent_order_quantity - leap) / self.interval_count
-        return (self.interval_count-1) * [q1] + \
+        return (self.interval_count - 1) * [q1] + \
                [q1 + leap]
+
     def create_child_orders(self):
         order_submit_times = self.get_order_submit_times()
 
         order_quantities = self.get_order_quantities()
-        self.child_orders = [TWAP.Child(order_time=order_submit_time,
+        self.child_orders = [TWAP_CHILD(order_time=order_submit_time,
                                         order_quantity=order_quantity,
                                         sliced_no=order_idx,
                                         parent_code=self.parent_code)
-                             for order_idx, (order_submit_time,order_quantity) in
-                             enumerate(zip(order_submit_times,order_quantities), start=1)]
+                             for order_idx, (order_submit_time, order_quantity) in
+                             enumerate(zip(order_submit_times, order_quantities), start=1)]
 
 
 twap_1 = TWAP(symbol='AKBNK',
