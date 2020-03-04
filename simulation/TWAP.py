@@ -1,5 +1,5 @@
-from collections import namedtuple
 import pandas as pd
+from zipline.api import order
 
 
 class TWAP_CHILD(object):
@@ -8,6 +8,7 @@ class TWAP_CHILD(object):
         self.order_quantity = order_quantity
         self.sliced_no = sliced_no
         self.parent_code = parent_code
+
 
 
 class TWAP(object):
@@ -19,7 +20,6 @@ class TWAP(object):
                  one_slice_interval_as_minutes,
                  left_over_action='leave',
                  ):
-        '''Initializes a new instance of the VolumeWeightedAveragePriceExecutionModel class'''
         self.symbolData = symbol
         self.side = side
         self.start_time = start_time if start_time is not None else pd.to_datetime('2017-01-03 10:00')
@@ -73,14 +73,3 @@ class TWAP(object):
                              enumerate(zip(order_submit_times, order_quantities), start=1)]
 
 
-twap_1 = TWAP(symbol='AKBNK',
-              parent_order_quantity=8000,
-              start_time=pd.to_datetime('2017-01-03 10:00'),
-              end_time=pd.to_datetime('2017-01-03 13:00'),
-              side='B',
-              one_slice_interval_as_minutes=10)
-
-twap_1.create_child_orders()
-for i in twap_1.child_orders:
-    print(i)
-print('x')
