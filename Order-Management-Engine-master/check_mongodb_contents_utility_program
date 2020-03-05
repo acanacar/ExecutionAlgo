@@ -1,0 +1,29 @@
+:~$ python
+Python 2.7.6 (default, Oct 26 2016, 20:32:47) 
+[GCC 4.8.4] on linux2
+Type "help", "copyright", "credits" or "license" for more information.
+
+import pymongo
+import pprint
+from pymongo import MongoClient
+from bson.objectid import ObjectId
+
+client = MongoClient('mongodb://admin:thisisyouradmin@ds141068.mlab.com:41068/order_entry')
+
+db = client.order_entry
+mongo_order = db.orders
+mongo_fill = db.fills
+
+
+pprint.pprint(mongo_order.find_one({'user_id':50}))
+
+>{u'LTP': 85,
+ u'_id': ObjectId('5ac77937b152ad4dac294fb5'),
+ u'ask_price': 80,
+ u'order_id': 100,
+ u'order_stamp': u'2018-04-06 19:12:15',
+ u'product_id': 412,
+ u'side': 0,
+ u'state': 1,
+ u'total_qty': 30,
+ u'user_id': 50}
