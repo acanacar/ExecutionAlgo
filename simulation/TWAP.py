@@ -1,14 +1,5 @@
 import pandas as pd
-from zipline.api import order
-
-
-class TWAP_CHILD(object):
-    def __init__(self, order_time, order_quantity, sliced_no, parent_code):
-        self.order_time = order_time
-        self.order_quantity = order_quantity
-        self.sliced_no = sliced_no
-        self.parent_code = parent_code
-
+from simulation.TWAP_CHILD import *
 
 
 class TWAP(object):
@@ -33,6 +24,7 @@ class TWAP(object):
         self.set_interval_count()
         self.set_child_order_quantity()
         self.child_orders = []
+        self.status = 'waiting'
         self.parent_code = 'sss'
 
     def set_twap_time_horizon(self):
@@ -71,5 +63,4 @@ class TWAP(object):
                                         parent_code=self.parent_code)
                              for order_idx, (order_submit_time, order_quantity) in
                              enumerate(zip(order_submit_times, order_quantities), start=1)]
-
-
+        self.child_orders_islem = self.child_orders.copy()
