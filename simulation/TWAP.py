@@ -5,13 +5,15 @@ from simulation.TWAP_CHILD import *
 class TWAP(object):
 
     def __init__(self, start_time, end_time,
-                 symbol,
+                 security_id,
+                 user_id,
                  parent_order_quantity,
                  side,
                  one_slice_interval_as_minutes,
                  left_over_action='leave',
                  ):
-        self.symbolData = symbol
+        self.security_id = security_id
+        self.user_id = user_id
         self.side = side
         self.start_time = start_time if start_time is not None else pd.to_datetime('2017-01-03 10:00')
         self.end_time = end_time if end_time is not None else pd.to_datetime('2017-01-03 18:00')
@@ -58,9 +60,13 @@ class TWAP(object):
 
         order_quantities = self.get_order_quantities()
         self.child_orders = [TWAP_CHILD(order_time=order_submit_time,
+                                        security_id = self.security_id,
+                                        user_id=self.user_id,
+                                        side=self.side,
                                         order_quantity=order_quantity,
                                         sliced_no=order_idx,
-                                        parent_code=self.parent_code)
+                                        parent_code=self.parent_code,
+                                        status='waiting')
                              for order_idx, (order_submit_time, order_quantity) in
                              enumerate(zip(order_submit_times, order_quantities), start=1)]
         self.child_orders_islem = self.child_orders.copy()
