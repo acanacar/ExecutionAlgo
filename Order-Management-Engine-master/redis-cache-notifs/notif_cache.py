@@ -1,4 +1,4 @@
-from settings import r
+from .settings import r
 import sys
 import json
 #from common.redis_client import get_redis_client
@@ -12,7 +12,7 @@ def json_cache(loaded_json, cache):
         cache[loaded_json['order_id']].append(loaded_json['user_id'])
     else:
         cache[loaded_json['order_id']] = [loaded_json['user_id']]
-    print cache
+    print(cache)
     return
 
 
@@ -23,18 +23,18 @@ def main():
     entry_send_channel = "entry_send"
     pubsub = r.pubsub()
     pubsub.subscribe(entry_channel, exec_channel)
-    #print 'Listening to {channel}'.format(**locals())
+    #print('Listening to {channel}'.format(**locals()))
     while True:
         for item in pubsub.listen():
             if item['data'] == 1L or item['data'] == 2L:
                 continue
             if item['channel'] == "entry":
-                print item['data'],"sent by order entry and cached"
+                print(item['data'],"sent by order entry and cached")
                 loaded_json = json.loads(item['data'].replace("\'", '"')) 
                 json_cache(loaded_json, cache) 
 
             if item['channel'] == "execution":
-                print item['data']," sent by execution links"
+                print(item['data']," sent by execution links")
                 loaded_json = json.loads(item['data'].replace("\'", '"')) 
                 if loaded_json['order_id'] in cache:
                     r.publish(entry_send_channel, str(cache[loaded_json['order_id']]))

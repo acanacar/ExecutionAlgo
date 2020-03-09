@@ -8,10 +8,10 @@ def main():
     entry_send_channel = "entry_send"
     entry_pubsub = r.pubsub()
     entry_pubsub.subscribe(entry_send_channel)
-    print 'Welcome to {entry_send_channel}'.format(**locals())
+    print('Welcome to {entry_send_channel}'.format(**locals()))
     while True:
         for item in entry_pubsub.listen():
-            print item['data']
+            print(item['data'])
             break
 
 if __name__ == '__main__':
