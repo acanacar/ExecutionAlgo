@@ -13,7 +13,9 @@ async def hello(uri):
             "resource": "fxplus"})
         try:
             await websocket.send(msg)
-            await websocket.recv()
+            print('x')
+            a = await websocket.recv()
+            print(a)
         except Exception as e:
             print(str(e))
 
