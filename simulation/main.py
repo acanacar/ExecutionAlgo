@@ -1,4 +1,4 @@
-from simulation.TWAP import *
+from Orders.TWAP import *
 
 date1 = '2017-01-03'
 date2 = '2017-01-04'
