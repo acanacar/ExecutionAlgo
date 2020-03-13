@@ -14,9 +14,9 @@ class TWAP_CHILD(object):
         self.parent_code = parent_code
         self.status = status
         self.order_quantity_done = 0
-        self.order_type = 1  # 1- Market 2- Limit 3- Market Limit Market(MLM)
+        self.order_type = 2  # 1- Market 2- Limit 3- Market Limit Market(MLM)
         # 4- Market To Limit(MTL) 5- Best Limit(BL) 6- Limit To Market (LTM)
-
+        self.order_price = 9
     def activate_order(self):
         self.status = 3
 
