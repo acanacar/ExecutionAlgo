@@ -38,6 +38,25 @@ async def login(uri):
         except Exception as e:
             print(str(e))
 
+async def subscribe_test(uri):
+    async with websockets.connect(uri) as websocket:
+
+        subscribe_msg = json.dumps({
+            "_id": 1,
+            "id": 1,
+            "symbols": ["H1758"],
+            "fields": fields
+        })
+        try:
+            await websocket.send(subscribe_msg)
+            r = await websocket.recv()
+            print('subscribe_msg is received')
+            data.append(json.loads(r))
+
+        except Exception as e:
+            print('hata burada')
+            print(str(e))
+
 
 async def subscribe(uri):
     async with websockets.connect(uri) as websocket:
@@ -68,29 +87,13 @@ async def subscribe(uri):
             print(str(e))
 
 
-async def subscribe_test(uri):
-    async with websockets.connect(uri) as websocket:
 
-        subscribe_msg = json.dumps({
-            "_id": 1,
-            "id": 1,
-            "symbols": ["H1758"],
-            "fields": fields
-        })
-        try:
-            await websocket.send(subscribe_msg)
-            r = await websocket.recv()
-            print('subscribe_msg is received')
-            data.append(json.loads(r))
-
-        except Exception as e:
-            print('hata burada')
-            print(str(e))
 
 
 loop = asyncio.get_event_loop()
-loop.run_until_complete(login('wss://websocket.foreks.com/websocket'))
-loop.run_until_complete(subscribe_test('wss://websocket.foreks.com/websocket'))
+loop.run_until_complete(subscribe('wss://websocket.foreks.com/websocket'))
+# loop.run_until_complete(login('wss://websocket.foreks.com/websocket'))
+# loop.run_until_complete(subscribe_test('wss://websocket.foreks.com/websocket'))
 
 import pandas as pd
 
