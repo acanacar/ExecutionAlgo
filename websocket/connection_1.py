@@ -5,7 +5,6 @@ import json
 
 akbnk_id = 'H1758'
 
-
 fields = get_symbols.get_field_shortcodes(get_symbols.fields_subscribe)
 
 
