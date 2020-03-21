@@ -63,6 +63,7 @@ def get_symbol_search_data():
     res = res.json()
     return pd.DataFrame(res)
 
+
 #
 df = get_symbol_search_data()
 
@@ -95,7 +96,7 @@ _id = get_specific_stock__id(data=df_, ticker='AKBNK.E')
 #
 fields_subscribe = \
     [
-        "Open", "High", "Low", "Close","Volume",
+        "Open", "High", "Low", "Close", "Volume",
         "Price",
         "Direction",
         "Last",
@@ -106,3 +107,31 @@ fields_subscribe = \
     ]
 
 d = get_field_shortcodes(fields_subscribe)
+
+
+def get_btc_id(currency=None):
+    mask_ticker = df.ticker == 'BTC'
+    if currency is None:
+        btc_df = df.loc[mask_ticker, :]
+
+    else:
+        mask_currency = df.currency == currency
+        btc_df = df.loc[mask_ticker & mask_currency, :]
+
+    btc = btc_df.dropna(axis=1, how='all', inplace=True).copy().iloc[0]
+    return btc
+
+
+import numpy as np
+
+# tickers = list(df.ticker.unique())
+# a = list(filter(lambda x: x.startswith("BTC") and not isinstance(x, float), tickers))
+# l = []
+# for ticker in tickers:
+#     if not isinstance(ticker,float):
+#         if ticker.startswith("BTC"):
+#             l.append(ticker)
+
+btc_df = df.loc[df.ticker == 'BTC', :]
+btc_df.dropna(axis=1, how='all', inplace=True)
+
