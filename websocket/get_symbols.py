@@ -1,6 +1,4 @@
-import requests
-import pandas as pd
-import xlsxwriter
+from websocket.export_libraries import *
 
 
 def check_cols_areas_to_excel(data):
@@ -66,6 +64,9 @@ def get_symbol_search_data():
 
 #
 df = get_symbol_search_data()
+from pathlib import Path
+
+df.to_pickle('/root/PycharmProjects/ExecutionAlgo/websocket/outputs/symbols_lookup.pickle')
 
 #
 check_cols_areas_to_excel(data=df)
@@ -118,20 +119,11 @@ def get_btc_id(currency=None):
         mask_currency = df.currency == currency
         btc_df = df.loc[mask_ticker & mask_currency, :]
 
-    btc = btc_df.dropna(axis=1, how='all', inplace=True).copy().iloc[0]
-    return btc
+    btc_df = btc_df.dropna(axis=1, how='all').copy()
+
+    return btc_df.iloc[0]
 
 
-import numpy as np
-
-# tickers = list(df.ticker.unique())
-# a = list(filter(lambda x: x.startswith("BTC") and not isinstance(x, float), tickers))
-# l = []
-# for ticker in tickers:
-#     if not isinstance(ticker,float):
-#         if ticker.startswith("BTC"):
-#             l.append(ticker)
-
-btc_df = df.loc[df.ticker == 'BTC', :]
-btc_df.dropna(axis=1, how='all', inplace=True)
+btc_row = get_btc_id()
+btc_row_us = get_btc_id(currency='USD')
 
