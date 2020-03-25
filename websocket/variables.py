@@ -21,3 +21,4 @@ d_lookup.update({'_id': '_id', '_i': '_i', 'snapshot': '_s', 'E': 'E'})
 inv_d_lookup = {v: k for k, v in d_lookup.items()}
 
 fields = list(d_lookup.values())
+

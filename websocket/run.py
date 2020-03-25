@@ -17,5 +17,6 @@ def get_btc_id(symbols_lookup=symbols_lookup, currency=None):
     return btc_df.iloc[0]
 
 
-btc_id = get_btc_id()._id
-btc_row_us = get_btc_id(currency='USD')
+btc_id = get_btc_id()._id  # 'o850'
+
+btc_row_us = get_btc_id(currency='USD')._id  # 'o1698'
