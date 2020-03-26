@@ -4,6 +4,15 @@ from websocket.variables import *
 data = []
 
 
+async def myHeartbeat(websocket):
+    while True:
+        await asyncio.sleep(14)
+        try:
+            await websocket.send(json.dumps({"_id": 16}))
+        except Exception as e:
+            print(f"myHeartbeat error is raised : {str(e)}")
+
+
 async def login(uri, websocket):
     login_msg = json.dumps({
         "_id": 64,

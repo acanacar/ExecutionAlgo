@@ -19,4 +19,13 @@ def get_btc_id(symbols_lookup=symbols_lookup, currency=None):
 
 btc_id = get_btc_id()._id  # 'o850'
 
-btc_row_us = get_btc_id(currency='USD')._id  # 'o1698'
+btc_row_us = get_btc_id(currency='THYAO.E')._id  # 'o1698'
+
+
+df =pd.read_pickle('/root/PycharmProjects/ExecutionAlgo/websocket/outputs/symbols_lookup.pickle')
+
+df = df[['ticker','_id']]
+
+for i,r in df.iterrows():
+    if r['ticker'].startswith('THYAO.E'):
+        print(r)
