@@ -1,4 +1,4 @@
-from database_oracle.connection import *
+from oracle_db.connection import *
 from Orders.TWAP import *
 
 twap_1 = TWAP(security_id='AKBNK',
