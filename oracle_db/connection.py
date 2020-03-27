@@ -1,5 +1,5 @@
 import cx_Oracle
-from database_oracle import config as cfg
+from oracle_db import config as cfg
 
 '''
 DECLARE

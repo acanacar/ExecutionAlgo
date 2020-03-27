@@ -1,6 +1,6 @@
 
 import cx_Oracle
-from database_oracle import config as cfg
+from oracle_db import config as cfg
 
 
 def get_order_count(salesman_id, year):
