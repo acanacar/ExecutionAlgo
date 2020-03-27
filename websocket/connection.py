@@ -8,20 +8,20 @@ import websockets
 import json
 import pandas as pd
 import time
+from constants import *
 
 akbnk_id = 'H1758'
 btc_try_id = 'o850'
 btc_usd_id = 'o1698'
 thyao_id = 'H2796'
-
 aa = {
-    'H1758': 'akbnk',
-    'o850': 'btc_try',
-    'o1698': 'btc_usd',
+    'H1758': 'AKBNK',
+    'o850': 'BTC_TRY',
+    'o1698': 'BTC_USD',
 }
 
 # fields_lookup = get_symbols.get_field_shortcodes(get_symbols.fields_subscribe)
-field_df = pd.read_pickle('/root/PycharmProjects/ExecutionAlgo/websocket/outputs/fields_lookup.pickle')
+field_df = pd.read_pickle(websocket_path / Path('outputs/fields_lookup.pickle'))
 field_df_time = field_df.loc[field_df.type == 'TIME']
 fields_lookup = field_df[['display', 'shortCode']].set_index('display').to_dict()['shortCode']
 fields_lookup.update(
@@ -31,37 +31,25 @@ inverse_fields_lookup = {v: k for k, v in fields_lookup.items()}
 
 fields = list(fields_lookup.values())
 
-# for i in range(10):
-#     for item in ['b','a','v','w']:
-#         print(f"'{item}{i}',")
-fields = ['t', 'TT',
-          'b0', 'v0', 'a0', 'w0', 'b1', 'v1', 'a1', 'w1', 'b2', 'v2', 'a2', 'w2',
-          'b3', 'v3', 'a3', 'w3', 'b4', 'v4', 'a4', 'w4', 'b5', 'v5', 'a5', 'w5',
-          'b6', 'v6', 'a6', 'w6', 'b7', 'v7', 'a7', 'w7', 'b8', 'v8', 'a8', 'w8',
-          'b9', 'v9', 'a9', 'w9']
 fields_ = [
-            'DateTime',
-           # 'Time', 'Date', 'TimeMs', 'BestBidTime', 'BestAskTime',
-           # 'TradeNumber',
-           'Last',
-           # 'Ticker',
-           'Bid',
-           # 'BidPrice0', 'BidAmount0',
-           'Ask',
-           # 'AskPrice0', 'AskAmount0'
-           ]
-# fields_ = ['DateTime', 'Ticker', 'Price', 'Last',
-#            'Bid', 'BidPrice0', 'BidAmount0',
-#            'Ask', 'AskPrice0', 'AskAmount0'
-#            ]
-# fields_ = ['BidPrice1', 'BidAmount1', 'AskPrice1', 'AskAmount1', 'BidPrice2', 'BidAmount2', 'AskPrice2', 'AskAmount2',
-#      'BidPrice3', 'BidAmount3', 'AskPrice3', 'AskAmount3', 'BidPrice4', 'BidAmount4', 'AskPrice4', 'AskAmount4',
-#      'BidPrice5', 'BidAmount5', 'AskPrice5', 'AskAmount5', 'BidPrice6', 'BidAmount6', 'AskPrice6', 'AskAmount6',
-#      'BidPrice7', 'BidAmount7', 'AskPrice7', 'AskAmount7', 'BidPrice8', 'BidAmount8', 'AskPrice8', 'AskAmount8',
-#      'BidPrice9', 'BidAmount9', 'AskPrice9', 'AskAmount9']
-# fields_ = fields_ + ['DateTime', 'Time', 'Date']
-fields = [fields_lookup[f] for f in fields_]
+    'DateTime',
+    # 'Time', 'Date', 'TimeMs', 'BestBidTime', 'BestAskTime',
+    'Last',
+    # 'Ticker',
+    'Bid',
+    # 'BidPrice0', 'BidAmount0',
+    'Ask',
+    # 'AskPrice0', 'AskAmount0'
+]
 
+fields = [fields_lookup[f] for f in fields_]
+symbols_to_subscribe = [
+    # akbnk_id,
+    btc_try_id,
+    btc_usd_id,
+    # thyao_id
+
+]
 MESSAGES = {
     'HEARTBEAT_MESSAGE': json.dumps({"_id": 16}),
 
@@ -75,13 +63,11 @@ MESSAGES = {
     'SUBSCRIBE_MESSAGE': json.dumps({
         "_id": 1,
         "id": 1,
-        "symbols": [
-            # akbnk_id, btc_try_id, btc_usd_id,
-            thyao_id
-        ],
+        "symbols": symbols_to_subscribe,
         "fields": fields
     })}
-data = []
+data = {aa[symbol]: [] for symbol in symbols_to_subscribe}
+
 
 async def myHeartbeat(websocket, heartbeat_message):
     while True:
@@ -109,17 +95,18 @@ async def main(uri='wss://websocket.foreks.com/websocket', subscribe_msg=MESSAGE
     async with websockets.connect(uri) as ws:
         if await myLogin(websocket=ws):
             await ws.send(subscribe_msg)
+            message_count = 0
             while True:
                 # await myHeartbeat(ws)
                 while True:
                     message_str = await asyncio.wait_for(ws.recv(), None)
                     message = json.loads(message_str)
-                    # message['symbol'] = aa[message['_id']]
-                    message['mydate'] = time.time()
-                    data.append(message)
+                    message['my_date'] = time.time()
+                    data[aa[message['_i']]].append(message)
+                    message_count += 1
                     # print(f"new data append and new length : {len(data)}")
-                    if len(data) % 12 == 0:
-                        print(len(data))
+                    if message_count % 6 == 0:
+                        print(message_count)
 
 
 if __name__ == '__main__':

@@ -1,3 +1,4 @@
+from constants import *
 from websocket.export_libraries import *
 
 
@@ -37,16 +38,16 @@ def check_cols_areas_to_excel(data):
                     ws.write(row_number, col_number, val)
 
 
-def get_specific_stock__id(data, ticker):
-    return data.loc[data.ticker == ticker].iloc[0]._id
-
-
-def get_field_shortcodes(field_names):
+def get_field_lookup_df():
     url = 'http://feed-definition.foreks.com/field/search'
     res = requests.get(url)
 
     res = res.json()
-    dframe = pd.DataFrame(res)
+    return pd.DataFrame(res)
+
+
+def get_field_shortcodes(field_names):
+    dframe = get_field_lookup_df()
     short_codes_df = dframe.loc[dframe['name'].isin(field_names), ['display', 'shortCode']] \
         .set_index('display')
     # fields = short_codes_df['shortCode'].values
@@ -62,9 +63,11 @@ def get_symbol_search_data():
     return pd.DataFrame(res)
 
 
-#
+df = get_field_lookup_df()
+
+df.to_pickle(websocket_path / Path('outputs/fields_lookup_pickle'))
+
 df = get_symbol_search_data()
-from pathlib import Path
 
 df.to_pickle('/root/PycharmProjects/ExecutionAlgo/websocket/outputs/symbols_lookup.pickle')
 
@@ -90,40 +93,3 @@ df_ = df.loc[mask_bist &
              mask_status
              ]
 df_.dropna(axis=1, inplace=True)
-
-#
-_id = get_specific_stock__id(data=df_, ticker='AKBNK.E')
-
-#
-fields_subscribe = \
-    [
-        "Open", "High", "Low", "Close", "Volume",
-        "Price",
-        "Direction",
-        "Last",
-        "Spread",
-        "Bid", "Ask",
-        "BidPrice0", "AskPrice0", "BidAmount0", "AskAmount0",
-        "VWAP",
-    ]
-
-d = get_field_shortcodes(fields_subscribe)
-
-
-def get_btc_id(currency=None):
-    mask_ticker = df.ticker == 'BTC'
-    if currency is None:
-        btc_df = df.loc[mask_ticker, :]
-
-    else:
-        mask_currency = df.currency == currency
-        btc_df = df.loc[mask_ticker & mask_currency, :]
-
-    btc_df = btc_df.dropna(axis=1, how='all').copy()
-
-    return btc_df.iloc[0]
-
-
-btc_row = get_btc_id()
-btc_row_us = get_btc_id(currency='USD')
-

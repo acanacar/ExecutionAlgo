@@ -7,7 +7,6 @@ def get_btc_id(symbols_lookup=symbols_lookup, currency=None):
     mask_ticker = symbols_lookup.ticker == 'BTC'
     if currency is None:
         btc_df = symbols_lookup.loc[mask_ticker, :]
-
     else:
         mask_currency = symbols_lookup.currency == currency
         btc_df = symbols_lookup.loc[mask_ticker & mask_currency, :]
@@ -21,11 +20,10 @@ btc_id = get_btc_id()._id  # 'o850'
 
 btc_row_us = get_btc_id(currency='THYAO.E')._id  # 'o1698'
 
+df = pd.read_pickle('/root/PycharmProjects/ExecutionAlgo/websocket/outputs/symbols_lookup.pickle')
 
-df =pd.read_pickle('/root/PycharmProjects/ExecutionAlgo/websocket/outputs/symbols_lookup.pickle')
+df = df[['ticker', '_id']]
 
-df = df[['ticker','_id']]
-
-for i,r in df.iterrows():
+for i, r in df.iterrows():
     if r['ticker'].startswith('THYAO.E'):
         print(r)
