@@ -90,29 +90,29 @@ async def myLogin(websocket, login_msg=MESSAGES['LOGIN_MSG']):
         print(f'First heartbeat is sent at {time.time()}')
         return True
 
-
+async def handle_data(msg):
+    pass
 async def main(uri='wss://websocket.foreks.com/websocket', subscribe_msg=MESSAGES['SUBSCRIBE_MESSAGE']):
     async with websockets.connect(uri) as ws:
         if await myLogin(websocket=ws):
             await ws.send(subscribe_msg)
             message_count = 0
             while True:
-                # await myHeartbeat(ws)
-                while True:
-                    message_str = await asyncio.wait_for(ws.recv(), None)
-                    message = json.loads(message_str)
-                    message['my_date'] = time.time()
-                    data[aa[message['_i']]].append(message)
-                    message_count += 1
-                    # print(f"new data append and new length : {len(data)}")
-                    if message_count % 6 == 0:
-                        print(message_count)
+                message_str = await ws.recv()
+                message = json.loads(message_str)
+                message['my_date'] = time.time()
+                await handle_data(message)
+                print(message)
+                data[aa[message['_i']]].append(message)
+                message_count += 1
+                # print(f"new data append and new length : {len(data)}")
+                if message_count % 6 == 0:
+                    print(message_count)
 
 
 if __name__ == '__main__':
     loop = asyncio.get_event_loop()
     loop.run_until_complete(main())
-    # print(len(data))
     loop.close()
     x = pd.DataFrame(data)
     x.columns = list(map(lambda col: inverse_fields_lookup[col], x.columns))
