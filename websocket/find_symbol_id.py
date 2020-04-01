@@ -25,5 +25,5 @@ df = pd.read_pickle('/root/PycharmProjects/ExecutionAlgo/websocket/outputs/symbo
 df = df[['ticker', '_id']]
 
 for i, r in df.iterrows():
-    if r['ticker'].startswith('THYAO.E'):
+    if r['ticker'].startswith('TKNSA.E'):
         print(r)
