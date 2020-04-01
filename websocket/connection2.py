@@ -20,18 +20,25 @@ akbnk_id = 'H1758'
 btc_try_id = 'o850'
 btc_usd_id = 'o1698'
 thyao_id = 'H2796'
+acsel_id = 'H2898'
+tknosa_id = 'H1582'
+
 aa = {
     'H1758': 'AKBNK',
     'o850': 'BTC_TRY',
     'o1698': 'BTC_USD',
-    'H2796': 'THYAO'}
+    'H2796': 'THYAO',
+    'H2898': 'ACSEL',
+    'H1582': 'TKNSA'}
 
 # fields_lookup = get_symbols.get_field_shortcodes(get_symbols.fields_subscribe)
 field_df = pd.read_pickle(websocket_path / Path('outputs/fields_lookup.pickle'))
 field_df_time = field_df.loc[field_df.type == 'TIME']
 fields_lookup = field_df[['display', 'shortCode']].set_index('display').to_dict()['shortCode']
 fields_lookup.update(
-    {'_id': '_id', '_i': '_i', 'snapshot': '_s', 'E': 'E', 'err': 'err', 'code': 'code', 'mydate': 'mydate'})
+    {'_id': '_id', '_i': '_i', 'snapshot': '_s', 'E': 'E', 'err': 'err', 'code': 'code'
+        , 'mydate': 'mydate', 'my_time': 'my_time'
+     })
 
 inverse_fields_lookup = {v: k for k, v in fields_lookup.items()}
 
@@ -51,9 +58,9 @@ fields_ = [
 fields = [fields_lookup[f] for f in fields_]
 symbols_to_subscribe = [
     akbnk_id,
-    # btc_try_id,
-    # btc_usd_id,
-    thyao_id
+    btc_try_id,
+    btc_usd_id,
+    thyao_id, acsel_id, tknosa_id
 
 ]
 MESSAGES = {
@@ -78,7 +85,7 @@ data = {aa[symbol]: [] for symbol in symbols_to_subscribe}
 async def myHeartbeat(websocket, heartbeat_message):
     try:
         await websocket.send(heartbeat_message)
-        print('heartbeat is sent')
+        print('HEARTBEAT ..')
         return time.time()
     except Exception as e:
         print(f"myHeartbeat error is raised : {str(e)}")
@@ -98,11 +105,14 @@ async def myLogin(websocket, login_msg=MESSAGES['LOGIN_MSG']):
 
 MSG_COUNT = 0
 
+current_milli_time = lambda: int(round(time.time() * 1000))
+
 
 def create_fxplus_response(msg):
     global MSG_COUNT
     if '_i' in msg.keys():
-        msg['my_date'] = pd.to_datetime(time.time(), unit='s')
+        # msg['my_date'] = pd.to_datetime(time.time(), unit='s')
+        msg['my_time'] = current_milli_time()
         data[aa[msg['_i']]].append(msg)
         MSG_COUNT += 1
         if MSG_COUNT % 10 == 0:
@@ -112,17 +122,19 @@ def create_fxplus_response(msg):
         print(f'not handled for message : {msg}')
 
 
-async def data_print():
-    print('burdayiz_1')
-    await asyncio.sleep(10)
-    print('burdayiz_2')
-    # print(pd.DataFrame(data))
-
-
 async def get_message(ws):
     message_str = await ws.recv()
     message = json.loads(message_str)
     create_fxplus_response(message)
+
+
+from asyncpg.pool import *
+
+
+async def insert_ticker(*, pool: Pool, table: str) -> None:
+    # fields = msg.keys()
+    # placeholders = sd
+    pass
 
 
 async def get_async(*, myLogin, create_fxplus_response):
@@ -138,10 +150,8 @@ async def get_async(*, myLogin, create_fxplus_response):
                 await get_message(ws)
                 # loop = asyncio.get_event_loop()
                 # task_heartbeat = loop.create_task(myHeartbeat(ws, MESSAGES['HEARTBEAT_MESSAGE']))
-                # task_data_print = loop.create_task(data_print())
                 # task_get_message = loop.create_task(get_message(ws=ws))
                 # await task_get_message
-                # await task_data_print
                 # await task_heartbeat
                 if time.time() - program_starts > 10:
                     program_starts = await myHeartbeat(ws, heartbeat_message=MESSAGES['HEARTBEAT_MESSAGE'])
@@ -159,7 +169,7 @@ if __name__ == '__main__':
 
     df_data = [i for k, v in data.items() for i in v]
     df = pd.DataFrame(df_data)
-    df.columns = list(map(lambda col: inverse_fields_lookup[col], x.columns))
+    df.columns = list(map(lambda col: inverse_fields_lookup[col], df.columns))
     df['datetime'] = pd.to_datetime(df['DateTime'], unit='ms')
-    df['mydatetime'] = pd.to_datetime(df['my_date'], unit='s')
-    df.to_pickle(websocket_path / Path('outputs') / Path('data_sample_2.pickle'))
+    df['mydatetime'] = pd.to_datetime(df['my_time'], unit='ms')
+    df.to_pickle(websocket_path / Path('outputs') / Path('data_sample_5.pickle'))
