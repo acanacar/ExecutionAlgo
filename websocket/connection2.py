@@ -4,13 +4,16 @@
 bilinmeyenler sorulacaklar: Price, TimeMs
 '''
 import asyncio
+from asyncpg.pool import Pool
 import websockets
 import json
 import pandas as pd
 import time
 from constants import *
-
 import logging
+from postgreSQL_db.config import *
+import asyncpg
+from asyncpg.pool import *
 
 logger = logging.getLogger('websockets')
 logger.setLevel(logging.INFO)
@@ -108,11 +111,12 @@ MSG_COUNT = 0
 current_milli_time = lambda: int(round(time.time() * 1000))
 
 
-def create_fxplus_response(msg):
+def handle_message(msg):
     global MSG_COUNT
     if '_i' in msg.keys():
         # msg['my_date'] = pd.to_datetime(time.time(), unit='s')
         msg['my_time'] = current_milli_time()
+
         data[aa[msg['_i']]].append(msg)
         MSG_COUNT += 1
         if MSG_COUNT % 10 == 0:
@@ -120,35 +124,88 @@ def create_fxplus_response(msg):
 
     else:
         print(f'not handled for message : {msg}')
+        msg = None
+    return msg
 
 
-async def get_message(ws):
-    message_str = await ws.recv()
+params = config()
+
+
+async def create_pool(*, dsn: str, min_conn: int = 2, max_conn: int = 10, **kwargs):
+    pool = await asyncpg.create_pool(dsn=dsn,
+                                     min_size=min_conn,
+                                     max_size=max_conn,
+                                     **kwargs)
+    logger.info("Pool created")
+    return pool
+
+
+def get_pool(dsn, loop):
+    attempts = 20
+    sleep_between_attempts = 3
+    for _ in range(attempts):
+        try:
+            pool = loop.run_until_complete(create_pool(dsn=dsn))
+        except Exception as e:
+            logger.exception(e)
+            time.sleep(sleep_between_attempts)
+        else:
+            return pool
+
+    raise Exception(f"Could not connect to database using {dsn} after "
+                    f"{attempts * sleep_between_attempts} seconds")
+
+
+def get_query(msg, table):
+    query = None
+    if msg is not None:
+        try:
+            columns_ = ','.join(list(map(lambda k: inverse_fields_lookup[k], msg.keys())))
+            values_ = tuple(msg.values())
+            query = f"""INSERT INTO {table} ({columns_}) VALUES{values_};"""
+
+        except Exception as e:
+            print(e)
+    return query
+
+
+async def insert_ticker(message, pool, table: str) -> None:
+    query = get_query(msg=message, table=table)
+    async with pool.acquire() as connection:
+        async with connection.transaction():
+            await connection.execute(query)
+
+
+async def get_message(*, websocket, insert_function):
+    message_str = await websocket.recv()
     message = json.loads(message_str)
-    create_fxplus_response(message)
+    message = handle_message(message)
+
+    await insert_function(message)
+    # if query is not None:
+    #     try:
+    #         conn = await asyncpg.connect(**params)
+    #         await conn.execute(query)
+    #     except Exception as e:
+    #         print(str(e))
 
 
-from asyncpg.pool import *
-
-
-async def insert_ticker(*, pool: Pool, table: str) -> None:
-    # fields = msg.keys()
-    # placeholders = sd
-    pass
-
-
-async def get_async(*, myLogin, create_fxplus_response):
+async def get_async(*, myLogin, handle_message):
+    '''postgres://user:pass@host:port/database?option=value'''
+    dsn = f'postgres://{params["user"]}:{params["password"]}@{params["host"]}:5432/{params["database"]}'
     uri = 'wss://websocket.foreks.com/websocket'
     subscribe_msg = MESSAGES['SUBSCRIBE_MESSAGE']
-    message_count = 0
     async with websockets.connect(uri) as ws:
         if await myLogin(websocket=ws):
             await ws.send(subscribe_msg)
             program_starts = time.time()
 
             while True:
-                await get_message(ws)
-                # loop = asyncio.get_event_loop()
+                insert_ticker_async = lambda response: insert_ticker(message=response, pool=Pool, table='time_series_5')
+                pool = get_pool(dsn, asyncio.get_event_loop())
+                await get_message(websocket=ws, insert_function=insert_ticker_async)
+                loop = asyncio.get_event_loop()
+                loop.run_until_complete(pool.close())
                 # task_heartbeat = loop.create_task(myHeartbeat(ws, MESSAGES['HEARTBEAT_MESSAGE']))
                 # task_get_message = loop.create_task(get_message(ws=ws))
                 # await task_get_message
@@ -159,9 +216,9 @@ async def get_async(*, myLogin, create_fxplus_response):
 
 def main():
     asyncio.get_event_loop().run_until_complete(
-        get_async(myLogin=myLogin, create_fxplus_response=create_fxplus_response))
+        get_async(myLogin=myLogin, handle_message=handle_message))
     # asyncio.get_event_loop().run_forever(
-    #             get_async(myLogin=myLogin, create_fxplus_response=create_fxplus_response))
+    #             get_async(myLogin=myLogin, handle_message=handle_message))
 
 
 if __name__ == '__main__':
