@@ -3,7 +3,7 @@ from constants import *
 
 
 def config(filename='database.ini', section='postgresql'):
-    file = websocket_path / Path(f'{filename}')
+    file = postgreSQL_db_path / Path(f'{filename}')
     # create a parser
     parser = ConfigParser()
     # read config file

@@ -1,14 +1,23 @@
 import psycopg2
-from websocket.config import config
+from postgreSQL_db.config import config
 import time
+from collections import namedtuple
 
 table_name = 'time_series_5'
 
 current_milli_time = lambda: int(round(time.time() * 1000))
 
 row = (12, 11.5, 12.4, current_milli_time())
+a = {'last': 75, 'bid': 77, 'ask': 74, 'my_time': current_milli_time()}
 
-sql = f"""INSERT INTO {table_name}(last,bid,ask,my_time) VALUES{row};"""
+# Child = namedtuple('Child',
+#                    ['last', 'bid', 'ask', 'my_time'])
+#
+# c1=Child(75,77,74,current_milli_time())
+
+sql = f"""INSERT INTO {table_name} ({','.join(a.keys())}) VALUES{tuple(a.values())};"""
+
+# sql = f"""INSERT INTO {table_name}(last,bid,ask,my_time) VALUES{row};"""
 
 # sql = f"""ALTER TABLE {table_name} ALTER COLUMN _id TYPE INT;"""
 
