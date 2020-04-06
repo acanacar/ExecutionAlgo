@@ -15,7 +15,7 @@ a = {'last': 75, 'bid': 77, 'ask': 74, 'my_time': current_milli_time()}
 #
 # c1=Child(75,77,74,current_milli_time())
 
-sql = f"""INSERT INTO {table_name} ({','.join(a.keys())}) VALUES{tuple(a.values())};"""
+sql = f"""-- INSERT INTO {table_name} ({','.join(a.keys())}) VALUES{tuple(a.values())};"""
 
 # sql = f"""INSERT INTO {table_name}(last,bid,ask,my_time) VALUES{row};"""
 
@@ -25,12 +25,26 @@ sql = f"""INSERT INTO {table_name} ({','.join(a.keys())}) VALUES{tuple(a.values(
 
 # sql = f"""ALTER TABLE {table_name} RENAME COLUMN bid_ TO bid;"""
 
-# sql = f"""SELECT column_name FROM information_schema.columns
+# sql = f"""SELECT column_name FROM INFORMATION_SCHEMA.columns
 #                      WHERE table_schema = 'public'
 #                      AND TABLE_NAME = '{table_name}';"""
 
-# sql = f"""SELECT column_name FROM information_schema.columns
+# sql = f"""SELECT column_name,data_type FROM information_schema.columns
 #                    WHERE TABLE_NAME = '{table_name}';"""
+
+sql = f""" CREATE TABLE Execution_Algo_t1 (
+    index bigint, 
+    _id integer, 
+    snapshot integer, 
+    _i text, 
+    datetime bigint, 
+    last double precision, 
+    bid double precision, 
+    ask double precision, 
+    my_time bigint, 
+    datetime_pd timestamp without time zone, 
+    my_time_pd timestamp without time zone) ; 
+    """
 
 try:
     params = config()

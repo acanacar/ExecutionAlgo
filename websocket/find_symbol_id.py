@@ -24,6 +24,34 @@ df = pd.read_pickle('/root/PycharmProjects/ExecutionAlgo/websocket/outputs/symbo
 
 df = df[['ticker', '_id']]
 
+from websocket.variables import all_ids
+
+a = None
 for i, r in df.iterrows():
-    if r['ticker'].startswith('TKNSA.E'):
+    if r['ticker'].startswith('THYAO.E'):
         print(r)
+        a = r
+
+import math
+
+for k, v in a.to_dict().items():
+    if type(v) == float:
+        if math.isnan(v):
+            continue
+    print('\n', k, v)
+
+
+# only bist30
+
+xu30= {}
+for i, r in df.iterrows():
+    if type(r['index'])==list:
+        if 'XU030' in r['index']:
+           xu30.update({r['ticker']:r['_id']})
+
+
+import pickle
+from constants import *
+with open(websocket_path/Path('outputs/xu030_id.pickle'),'wb') as handle:
+    pickle.dump(xu30,handle,protocol=pickle.HIGHEST_PROTOCOL)
+

@@ -81,15 +81,36 @@ mask_equity = df['marketSector'] == 'Equity'
 mask_market = df['market'] == 'MSPOT'
 mask_sub_market = df['subMarket'] == 'Z'
 mask_sub_market_desc = df['subMarketDesc'] == 'PAY-YILDIZ PAZAR'
-mask_security_type = df['securityType'] == 'Stock'
+mask_security_type = df['securityType'] ==  'Exchange' # Stock #'MetalIndex'
 mask_currency = df['currency'] == 'TRY'
 mask_status = df['status'] == 'ACTIVE'
 mask_security = df.security == 'E'
-df_ = df.loc[mask_bist &
-             mask_equity &
-             mask_market &
-             mask_sub_market &
-             mask_security_type &
-             mask_status
+
+mask_underlying_security = df.underlyingSecurity=='XAUUSD'
+
+
+
+df = pd.read_pickle(websocket_path/Path('outputs/symbols_lookup.pickle'))
+
+df_ = df.loc[
+    df.ticker=='XAUTRY'
+             # mask_underlying_security
+             # &
+             # mask_bist
+             # &
+             # mask_equity
+             # &
+             # mask_market
+             # &
+             # mask_sub_market
+             # &
+             # mask_security_type
+             # &
+             # mask_status
              ]
+
 df_.dropna(axis=1, inplace=True)
+
+
+
+
