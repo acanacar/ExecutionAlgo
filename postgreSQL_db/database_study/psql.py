@@ -91,7 +91,8 @@ result_set = engine.execute("SELECT * FROM table_name")
 for result in result_set:
     print(result)
 
-current_milli_time = lambda: int(round(time.time() * 1000))
+import datetime
+current_milli_time = lambda: int(round(datetime.time() * 1000))
 
 
 async def insert_ticker(connection, table_name='table_name'):
@@ -100,7 +101,7 @@ async def insert_ticker(connection, table_name='table_name'):
         my_time_pd = pd.to_datetime(ts, unit='ms')
         row = (3, 1.0, "xy", ts, my_time_pd)
         print(row)
-        await connection.execute(f"""INSERT INTO {table_name} (_id,last,_i,my_time,my_time_pd) VALUES {row}""")
+        await connection.execute(f"""INSERT INTO {table_name} (_id,last,_i,my_time,datetime_pd) VALUES {row}""")
     except asyncpg.exceptions.InvalidTextRepresentationError as e:
         print(f"InvalidTextRepresentationError -> {e}")
 

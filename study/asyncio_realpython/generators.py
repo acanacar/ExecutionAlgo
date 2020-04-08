@@ -6,6 +6,7 @@ async def mygen(u: int = 10):
     while i < u:
         yield 2 ** i
         i += 1
+        print('burada')
         await asyncio.sleep(0.1)
 
 
