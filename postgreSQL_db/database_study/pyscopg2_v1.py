@@ -32,18 +32,17 @@ sql = f"""-- INSERT INTO {table_name} ({','.join(a.keys())}) VALUES{tuple(a.valu
 # sql = f"""SELECT column_name,data_type FROM information_schema.columns
 #                    WHERE TABLE_NAME = '{table_name}';"""
 
-sql = f""" CREATE TABLE Execution_Algo_t1 (
-    index bigint, 
+sql = f""" CREATE TABLE Execution_Algo_t2 (
     _id integer, 
     snapshot integer, 
     _i text, 
+    datetime_pd timestamp without time zone, 
     datetime bigint, 
+    my_time bigint, 
     last double precision, 
     bid double precision, 
-    ask double precision, 
-    my_time bigint, 
-    datetime_pd timestamp without time zone, 
-    my_time_pd timestamp without time zone) ; 
+    ask double precision 
+    ) ; 
     """
 
 try:
