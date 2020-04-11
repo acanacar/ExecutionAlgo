@@ -23,7 +23,7 @@ field_df_time = field_df.loc[field_df.type == 'TIME']
 fields_lookup = field_df[['display', 'shortCode']].set_index('display').to_dict()['shortCode']
 fields_lookup.update(
     {'_id': '_id', '_i': '_i', 'snapshot': '_s', 'E': 'E', 'err': 'err', 'code': 'code'
-        , 'mydate': 'mydate', 'my_time': 'my_time'
+        , 'mydate': 'mydate', 'my_time': 'my_time', 'datetime_pd': 'datetime_pd'
      })
 
 inverse_fields_lookup = {v: k for k, v in fields_lookup.items()}
