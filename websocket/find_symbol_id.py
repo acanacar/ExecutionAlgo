@@ -44,14 +44,21 @@ for k, v in a.to_dict().items():
 # only bist30
 
 xu30= {}
+xu100= {}
 for i, r in df.iterrows():
     if type(r['index'])==list:
         if 'XU030' in r['index']:
            xu30.update({r['ticker']:r['_id']})
+        if 'XU100' in r['index']:
+           xu100.update({r['ticker']:r['_id']})
+
 
 
 import pickle
 from constants import *
 with open(websocket_path/Path('outputs/xu030_id.pickle'),'wb') as handle:
     pickle.dump(xu30,handle,protocol=pickle.HIGHEST_PROTOCOL)
+
+with open(websocket_path/Path('outputs/xu100_id.pickle'),'wb') as handle:
+    pickle.dump(xu100,handle,protocol=pickle.HIGHEST_PROTOCOL)
 
