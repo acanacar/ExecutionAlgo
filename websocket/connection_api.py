@@ -173,8 +173,8 @@ async def handle_fxplus(insert_function, pool):
         await ws.send(MESSAGES['SUBSCRIBE_MESSAGE'])
         asyncio.ensure_future(recv_data(ws=ws, insert_function=insert_function))
         # asyncio.ensure_future(display_(conn_pool=pool))
-        queries = QUERIES
-        for i, query in queries:
-            asyncio.ensure_future(display__(conn_pool=pool,ind=i, query=query))
+        # queries = QUERIES
+        # for i, query in queries:
+        #     asyncio.ensure_future(display__(conn_pool=pool,ind=i, query=query))
 
 # 1854157108
